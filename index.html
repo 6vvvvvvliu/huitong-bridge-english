@@ -1,67 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full-Text Reading Room</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>惠通桥英语 - 全文精读</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.4s ease-out forwards;
+        }
         body {
-            background-color: #121212;
-            color: #FFFFFF;
-            font-family: Arial, sans-serif;
-        }
-        .dark-theme {
-            background-color: #121212;
-            color: #FFFFFF;
-        }
-        .button {
-            padding: 10px 20px;
-            background-color: #FF5722;
+            background-color: #0f172a;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 120px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 0;
-            position: absolute;
-            z-index: 1;
-        }
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
-<body class="dark-theme">
-    <h1>Welcome to the Full-Text Reading Room</h1>
-    <div id="readingArea">
-        <h2>Text Content</h2>
-        <p class="tooltip">Word <span class="tooltiptext">Definition of the word.</span></p>
-        <p>Here goes your main application content...</p>
-    </div>
-    <div>
-        <button class="button" onclick="playSentence()">Play Sentence</button>
-        <button class="button" onclick="openDictionary()">Vocabulary Dictionary</button>
-    </div>
-    <script>
-        function playSentence() {
-            // Code to playback the sentence
-            alert('Playing sentence...');
-        }
-        function openDictionary() {
-            // Code to open vocabulary dictionary
-            alert('Opening vocabulary dictionary...');
-        }
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        /* ========== 课文内容 ========== */
+        const ARTICLE = [
+            "Huitong Bridge is located on the Nu River in Baoshan, Yunnan.",
+            "It was a vital passage on the Burma Road and an important military station during the War of Resistance against Japanese Aggression.",
+            "Originally an iron-chain suspension bridge, it was later rebuilt as a steel-cable suspension bridge with donations from overseas Chinese.",
+            "In 1942, to stop the Japanese advance, the defending troops reluctantly blew up the bridge, making it a crucial turning point in the Western Yunnan campaign."
+        ];
+
+        const TRANSLATIONS = [
+            "惠通桥位于云南保山怒江上。",
+            "它是缅甸公路上的重要通道，也是抗日战争期间的一个重要军事站点。",
+            "最初是铁链悬索桥，后来由海外华侨捐款重建成了钢缆悬索桥。",
+            "1942年，为了阻止日军进攻，守军不得不炸毁了这座桥，它成为了滇西战役的一个关键转折点。"
+        ];
+
+        /* ========== 语音播放 Hook ========== */
+        const useSpeaker = () => {
+            const [isPlaying, setIsPlaying] = useState(false);
+
+            const speak = (text) => {
+                window.speechSynthesis.cancel();
+                setIsPlaying(true);
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.85;
+                utterance.pitch = 1;
+
+                utterance.onend = () => setIsPlaying(false);
+                utterance.onerror = () => setIsPlaying(false);
+
+                window.speechSynthesis.speak(utterance);
+            };
+
+            return { speak, isPlaying };
+        };
+
+        /* ========== 主应用 ========== */
+        const ReadingRoom = () => {
+            const [playingIdx, setPlayingIdx] = useState(-1);
+            const { speak, isPlaying } = useSpeaker();
+
+            useEffect(() => {
+                if (!isPlaying) setPlayingIdx(-1);
+            }, [isPlaying]);
+
+            const handlePlaySentence = (text, idx) => {
+                if (playingIdx === idx && isPlaying) {
+                    window.speechSynthesis.cancel();
+                    setPlayingIdx(-1);
+                } else {
+                    setPlayingIdx(idx);
+                    speak(text);
+                }
+            };
+
+            return (
+                <div style={{ minHeight: '100vh', background: '#0f172a', color: 'white', display: 'flex', flexDirection: 'column' }}>
+                    {/* 头部 */}
+                    <div style={{ background: '#1e293b', borderBottom: '1px solid #334155', padding: '20px', position: 'sticky', top: 0, zIndex: 100 }}>
+                        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '24px' }}>📖</span>
+                            <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#3b82f6' }}>
+                                惠通桥英语精读
+                            </h1>
+                        </div>
+                    </div>
+
+                    {/* 主内容 */}
+                    <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%', padding: '30px 20px', flex: 1 }}>
+                        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                            <h2 style={{ fontSize: '36px', fontWeight: 'bold', margin: '0 0 10px 0' }}>
+                                Huitong Bridge
+                            </h2>
+                            <p style={{ color: '#94a3b8', margin: 0 }}>惠通桥 · 全文精读</p>
+                        </div>
+
+                        {/* 课文内容 */}
+                        <div style={{ background: '#1e293b', borderRadius: '12px', padding: '30px', border: '1px solid #334155', marginBottom: '30px' }}>
+                            {ARTICLE.map((sentence, idx) => (
+                                <div key={idx} style={{ marginBottom: '30px', borderLeft: '4px solid #3b82f6', paddingLeft: '20px', paddingTop: '10px', paddingBottom: '10px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '15px' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontSize: '18px', lineHeight: '1.8', margin: '0 0 15px 0', color: 'white' }}>
+                                                {sentence}
+                                            </p>
+                                            <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0, fontStyle: 'italic' }}>
+                                                {TRANSLATIONS[idx]}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => handlePlaySentence(sentence, idx)}
+                                            style={{
+                                                padding: '12px',
+                                                borderRadius: '50%',
+                                                border: 'none',
+                                                background: playingIdx === idx && isPlaying ? '#dc2626' : '#475569',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                fontSize: '18px',
+                                                minWidth: '48px',
+                                                height: '48px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                flexShrink: 0,
+                                                transition: 'all 0.2s',
+                                                boxShadow: playingIdx === idx && isPlaying ? '0 0 0 2px #ef4444' : 'none'
+                                            }}
+                                            onMouseEnter={e => !isPlaying && (e.target.style.background = '#3b82f6')}
+                                            onMouseLeave={e => playingIdx !== idx && (e.target.style.background = '#475569')}
+                                        >
+                                            🔊
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* 学习建议 */}
+                        <div style={{ background: 'linear-gradient(to right, #1e293b, #0f172a)', borderRadius: '12px', padding: '20px', border: '1px solid #334155' }}>
+                            <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: 'white', margin: '0 0 15px 0' }}>
+                                📚 学习建议
+                            </h3>
+                            <ul style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1' }}>
+                                <li style={{ marginBottom: '10px' }}>✅ 先整体朗读一遍，感受语流</li>
+                                <li style={{ marginBottom: '10px' }}>✅ 逐句播放，跟随模仿发音</li>
+                                <li style={{ marginBottom: '10px' }}>✅ 对比中文翻译，加深理解</li>
+                                <li>✅ 反复练习，逐步提升英文水平</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        /* ========== 渲染应用 ========== */
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ReadingRoom />);
     </script>
 </body>
 </html>
