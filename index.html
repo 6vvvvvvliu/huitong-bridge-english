@@ -1,10 +1,67 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Reading Room</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Text Reading Room</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #FFFFFF;
+            font-family: Arial, sans-serif;
+        }
+        .dark-theme {
+            background-color: #121212;
+            color: #FFFFFF;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #FF5722;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+        }
+    </style>
 </head>
-<body>
-    <h1>Welcome to the Reading Room</h1>
-    <p>This is a resource for full text reading learning.</p>
-    <!-- Additional functionalities can be added here -->
+<body class="dark-theme">
+    <h1>Welcome to the Full-Text Reading Room</h1>
+    <div id="readingArea">
+        <h2>Text Content</h2>
+        <p class="tooltip">Word <span class="tooltiptext">Definition of the word.</span></p>
+        <p>Here goes your main application content...</p>
+    </div>
+    <div>
+        <button class="button" onclick="playSentence()">Play Sentence</button>
+        <button class="button" onclick="openDictionary()">Vocabulary Dictionary</button>
+    </div>
+    <script>
+        function playSentence() {
+            // Code to playback the sentence
+            alert('Playing sentence...');
+        }
+        function openDictionary() {
+            // Code to open vocabulary dictionary
+            alert('Opening vocabulary dictionary...');
+        }
+    </script>
 </body>
 </html>
